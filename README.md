@@ -1,0 +1,1 @@
+# daiksoul.github.io
