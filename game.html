@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<style>
+			#gameCanvas{
+				background-color: #e0e0e0; 
+				border-radius:4px;
+			}
+			body{
+				display: contents;
+				position: relative;
+			}
+			.container{
+				position: relative;
+				left: 50%;
+				transform: translateX(-50%);
+				text-align: center;
+			}
+
+			.side-bar{
+				position: absolute;
+				top: 0;
+				bottom: 25%;
+				width: 20%;
+				text-align: center;
+				background-color: rgb(87, 184, 151);
+				border-radius: 4px;
+				margin: 20px;
+				font-weight: bold;
+				color: white;
+			}
+
+			.side-bar.left{
+				left:0;
+			}
+			.side-bar.right{
+				right:0;
+			}
+
+			input{
+				position: relative;
+				left: 50%;
+				transform: translateX(-50%);
+				border:none;
+				display: block;
+			}
+
+			input[type="text"]{
+				height: 25px;
+			}
+			input[type="submit"]{
+				margin: 10px;
+				height: 25px;
+				width: auto;
+			}
+
+			button{
+				border:none;
+				width: 80px;
+				height: 40px;
+				background-color: #00d471;
+				color:white;
+				font-weight: bold;
+				border-radius: 4px;
+			}
+			button:hover{
+				background-color: #00ac5c;
+			}
+			button:focus{
+				border:none;
+			}
+
+			.key-contain{
+				display: block;
+				margin-bottom: 100px;
+			}
+			.key{
+				display: block;
+				background-color: white;
+				color:black;
+				width: 40px;
+				height: 40px;
+				font-size: 50%;
+				font-weight: 100;
+				border-radius: 3px;
+				left:50%;
+				transform: translateX(-50%);
+				position: relative;
+			}
+			.key#down{
+				transform: translateX(-50%) translateY(100%);
+				position: absolute;
+			}
+			.key#left{
+				transform: translateX(-150%) translateY(0%);
+				position: absolute;
+			}
+			.key#right{
+				transform: translateX(50%) translateY(0%);
+				position: absolute;
+			}
+			.key#sp{
+				width: 100px;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="scoreblock" class="container">
+			score: <span id = "list_c">0</span>
+		</div>
+		<canvas id = "gameCanvas" width="400" height="600" class="container">
+			you've just activated my trap card
+		</canvas>
+		<p class="container">
+			<button onclick="if(!run)start()">START</button>
+		</p>
+		<div class="side-bar left">
+			<h3>LEADER BOARD</h3>
+			<ul id = "leader-board" style="list-style-type: decimal; list-style-position:outside;">
+				<li class="leader-board-player"><span class="name">이름</span> : <span class="score">00</span>점</li>
+				<li class="leader-board-player"><span class="name">이름</span> : <span class="score">00</span>점</li>
+				<li class="leader-board-player"><span class="name">이름</span> : <span class="score">00</span>점</li>
+				<li class="leader-board-player"><span class="name">이름</span> : <span class="score">00</span>점</li>
+				<li class="leader-board-player"><span class="name">이름</span> : <span class="score">00</span>점</li>
+				<li class="leader-board-player"><span class="name">이름</span> : <span class="score">00</span>점</li>
+				<li class="leader-board-player"><span class="name">이름</span> : <span class="score">00</span>점</li>
+				<li class="leader-board-player"><span class="name">이름</span> : <span class="score">00</span>점</li>
+				<li class="leader-board-player"><span class="name">이름</span> : <span class="score">00</span>점</li>
+			</ul>
+			<form action="javascript:submit();">
+				<input type="text" id="sub-name" placeholder="이름" required>
+				<input type="submit" value="점수제출">
+			</form>
+		</div>
+		<div class="side-bar right">
+			<h3>Controls</h3>
+			<h4 style="font-weight: normal;">Movement</h4>
+			<div class="key-contain">
+				<div class="key" id="up"><br/>up</div>
+				<div class="key" id="down"><br/>down</div>
+				<div class="key" id="left"><br/>left</div>
+				<div class="key" id="right"><br/>right</div>
+			</div>
+			<h4 style="font-weight: normal;">Attack</h4>
+			<div class="key" id="sp"><br/>space</div>
+		</div>
+		<script>
+			window.onload = function(){
+				refreshBoard();
+
+				if(mobileCheck()){
+					window.addEventListener("deviceorientation", handleOrientation);
+					window.ondeviceorientation(handleOrientation);
+				}else{
+					document.addEventListener('keydown',function(event){
+						if(event.keyCode==37){
+							keyEls.item(2).style.backgroundColor = "silver";
+							keyL = true;
+						}
+						if(event.keyCode==38){
+							keyEls.item(0).style.backgroundColor = "silver";
+							keyU = true;
+						}
+						if(event.keyCode==39){
+							keyEls.item(3).style.backgroundColor = "silver";
+							keyR = true;
+						}
+						if(event.keyCode==40){
+							keyEls.item(1).style.backgroundColor = "silver";
+							keyD = true;
+						}
+						if(event.keyCode==32){
+							keyEls.item(4).style.backgroundColor = "silver";
+							event.preventDefault();
+							keyS = true;
+						}
+					})
+			
+					document.addEventListener('keyup',function(event){
+						if(event.keyCode==37){
+							keyEls.item(2).style.backgroundColor = "white";
+							keyL = false;
+						}
+						if(event.keyCode==38){
+							keyEls.item(0).style.backgroundColor = "white";
+							keyU = false;
+						}
+						if(event.keyCode==39){
+							keyEls.item(3).style.backgroundColor = "white";
+							keyR = false;
+						}
+						if(event.keyCode==40){
+							keyEls.item(1).style.backgroundColor = "white";
+							keyD = false;
+						}
+						if(event.keyCode==32){
+							keyEls.item(4).style.backgroundColor = "white";
+							keyS = false;
+							player.bullets = 20;
+						}
+					})
+				}
+			}
+
+			function mobileCheck() {
+				let check = false;
+				(function(a){if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(a)||/1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0,4))) check = true;})(navigator.userAgent||navigator.vendor||window.opera);
+				return check;
+			};
+
+			function handleOrientation(event){
+				var xval = event.gamma;
+				//document.getElementById("list_c").textContent = x;
+				keyL = xval <-10;
+				keyR = xval >10;
+			}
+
+			function refreshBoard(){
+				var scores = new Map();
+				for(let i = 0; i<localStorage.length; i++)
+					scores.set(localStorage.key(i),localStorage.getItem(localStorage.key(i)));
+
+				const scores_n = new Map([...scores.entries()].sort((a, b) => b[1] - a[1]));
+
+				var els = document.getElementsByClassName("leader-board-player");
+				let t = 0;
+				for(let key of scores_n.keys()){
+					let lb_name = key;
+					if(key.indexOf(" ")!=-1)
+						lb_name = key.substr(0,key.indexOf(" "));
+					els.item(t).getElementsByClassName("name").item(0).textContent = lb_name;
+					els.item(t).getElementsByClassName("score").item(0).textContent = scores_n.get(key);
+					t++;
+					if(t>=els.length)
+						break;
+				}
+			}
+			  
+			var run = false;
+
+			const C_WIDTH = document.getElementById("gameCanvas").width;
+			const C_HEIGT = document.getElementById("gameCanvas").height;
+			const E_SIZE = 30;
+			
+			//image sprites
+			const P_SPRITE = "assets/game/player.png";
+			const E_SPRITE_1 = "assets/game/enemy1.png";
+			const E_SPRITE_2 = "assets/game/enemy2.png";
+			const B_SPRITE = "assets/game/explode.png";
+			
+			const GO_SPRITE = "assets/game/game_over.png";
+			const go_img = new Image;
+			go_img.src = GO_SPRITE;
+			
+			const keyEls = document.getElementsByClassName("key");
+			
+			//keys
+			var keyR = false;
+			var keyL = false;
+			var keyU = false;
+			var keyD = false;
+			var keyS = false;
+	
+			var score = 0;
+
+			//leaderboard
+			function submit(){
+				if(run) return;
+				if(score == 0) return;
+				var name = document.getElementById("sub-name").value;
+				if(localStorage.getItem(name)==null)
+					localStorage.setItem(name,score);
+				else{
+					let j = 1;
+					while(true){
+						if(localStorage.getItem(name+" "+String(j))==null){
+							localStorage.setItem(name+" "+String(j),score);
+							break;
+						}
+						else
+							j++;
+					}
+				}
+				refreshBoard();
+			}
+			
+			//bullet
+			class Bullet{
+				constructor(x,y,e) {
+					this.x_pos = x;
+					this.y_pos = y;
+					this.e = e;
+				}
+				draw(ctx){
+					if(this.e)
+						ctx.fillStyle = "#000000";
+					else
+						ctx.fillStyle = "#FF0000";
+					ctx.fillRect(this.x_pos-4,this.y_pos-4,8,8);
+				}
+				move(){
+					if(this.e)
+						this.y_pos-=4;
+					else
+						this.y_pos+=4;
+				}
+				outofBound(){
+					return this.y_pos<0 || this.y_pos>C_HEIGT;
+				}
+			}
+
+			//player entity
+			class Player{
+				constructor(src){
+					this.img = new Image();
+					this.img.src = src;
+					this.x_pos = 0;
+					this.y_pos = 0;
+					this.bullets = 20;
+					this.act = true;
+				}
+				draw(ctx){
+					ctx.drawImage(this.img,this.x_pos-E_SIZE/2,this.y_pos-E_SIZE/2,E_SIZE,E_SIZE);
+				}
+				move(x,y){
+					if(this.act){
+						if(this.x_pos-E_SIZE/2+x>0&&this.x_pos+E_SIZE/2+x<C_WIDTH)
+							this.x_pos += x;
+	
+						if(this.y_pos-E_SIZE/2+y>0&&this.y_pos+E_SIZE/2+y<C_HEIGT)
+							this.y_pos += y;
+					}
+				}
+				setPos(x,y){
+					this.x_pos = x;
+					this.y_pos = y;
+				}
+				bCollision(obj){
+					return this.act && this.x_pos+E_SIZE/2>obj.x_pos && this.x_pos-E_SIZE/2<obj.x_pos && this.y_pos+E_SIZE/2>obj.y_pos && this.y_pos-E_SIZE/2<obj.y_pos;
+				}
+				eCollision(obj){
+					if(!obj.act)
+						return false;
+					if(this.x_pos-E_SIZE/2>=obj.x_pos+E_SIZE/2||obj.x_pos-E_SIZE/2>=this.x_pos+E_SIZE/2)
+						return false;
+					if(this.y_pos-E_SIZE/2>=obj.y_pos+E_SIZE/2||obj.y_pos-E_SIZE/2>=this.y_pos+E_SIZE/2)
+						return false;
+					else return true;
+				}
+			}
+	
+			class Enemy{
+				constructor(src){
+					this.img = new Image();
+					this.img.src = src;
+					this.x_pos = 0;
+					this.y_pos = 0;
+					this.dir = 0;
+					this.act = true;
+				}
+				draw(ctx){
+					ctx.drawImage(this.img,this.x_pos-E_SIZE/2,this.y_pos-E_SIZE/2,E_SIZE,E_SIZE);
+				}
+				move(x,y){
+					if(this.act){
+						if(this.x_pos-E_SIZE/2+x>0&&this.x_pos+E_SIZE/2+x<C_WIDTH)
+							this.x_pos += x;
+	
+						if(this.y_pos-E_SIZE/2+y>0&&this.y_pos+E_SIZE/2+y<C_HEIGT)
+							this.y_pos += y;
+					}
+				}
+				setPos(x,y){
+					this.x_pos = x;
+					this.y_pos = y;
+				}
+				dirMove(){
+					var sp = Math.max(1,dist(this,player)/100);
+					this.move(sp*Math.sin(this.dir),sp*Math.cos(this.dir));
+				}
+				dirUpdate(obj){
+					this.dir = Math.atan2(obj.x_pos-this.x_pos,obj.y_pos-this.y_pos);
+				}
+				bCollision(obj){
+					return this.act && this.x_pos+E_SIZE/2>obj.x_pos && this.x_pos-E_SIZE/2<obj.x_pos && this.y_pos+E_SIZE/2>obj.y_pos && this.y_pos-E_SIZE/2<obj.y_pos;
+				}
+			}
+	
+			var player = new Player(P_SPRITE);
+			var enemy = new Enemy(E_SPRITE_1);
+	
+			var bulletArr = new Array();
+			
+			var timer1;
+			var timer2;
+			var timer3;
+			var timer4;
+	
+			var c = document.getElementById("gameCanvas");
+			var ctx = c.getContext("2d");
+	
+			function start(){
+				reset();
+	
+				timer1 = window.setInterval(function(){
+					update(ctx);
+					document.getElementById("list_c").textContent = score;
+				},5);
+	
+				timer2 = window.setInterval(function(){
+					input();
+					enemy.dirMove();
+				},10);
+	
+				timer3 = window.setInterval(function(){
+					shoot();
+				},100);
+	
+				timer4 = window.setInterval(function(){
+					enemy.dirUpdate(player);
+					eShoot();
+				},1000);
+			}
+	
+			function update(ctx){
+				ctx.clearRect(0, 0, C_WIDTH, C_HEIGT);
+				ctx.beginPath();
+				bulletArr.forEach(function(val,ind,arr){
+					val.move();
+					val.draw(ctx);
+					if(enemy.bCollision(val)){
+						eExplode();
+						arr.splice(arr.indexOf(val),1);
+					}
+					if(player.bCollision(val)){
+						pExplode();
+						arr.splice(arr.indexOf(val),1);
+					}
+					if(val.outofBound())
+						arr.splice(arr.indexOf(val),1);
+				})
+				if(player.eCollision(enemy)){
+					pExplode();
+				}
+				player.draw(ctx);
+				enemy.draw(ctx);
+			}
+	
+			function pShoot(){
+				if(player.bullets>0&& player.act){
+					var b = new Bullet(player.x_pos,player.y_pos-E_SIZE/2,true);
+					bulletArr.push(b);
+					player.bullets--;
+				}
+			}
+			function eShoot(){
+				if(enemy.act){
+					var b = new Bullet(enemy.x_pos,enemy.y_pos+E_SIZE/2,false);
+					bulletArr.push(b);
+				}
+			}
+	
+			function input(){
+				if(keyL)
+					player.move(-3,0);
+				if(keyR)
+					player.move(3,0);
+				if(keyU)
+					player.move(0,-3);
+				if(keyD)
+					player.move(0,3);
+			}
+	
+			function shoot(){
+				if(keyS)
+					pShoot();
+			}
+	
+			function dist(obj1, obj2){
+				return Math.sqrt(Math.pow(obj1.x_pos-obj2.x_pos,2)+Math.pow(obj1.y_pos-obj2.y_pos,2))
+			}
+	
+			function eExplode(){
+				enemy.img.src = B_SPRITE;
+				enemy.act = false;
+				setTimeout(eRespawn,1500);
+				score+=10;
+			}
+	
+			function eRespawn(){
+				switch(Math.round(Math.random())){
+					case 0:
+						enemy.img.src = E_SPRITE_1;
+						break;
+					case 1:
+						enemy.img.src = E_SPRITE_2;
+				}
+				enemy.setPos(Math.random()*(C_WIDTH-E_SIZE)+E_SIZE/2,E_SIZE);
+				enemy.act = true;
+			}
+			
+			function pExplode(){
+				player.img.src = B_SPRITE;
+				player.act = false;
+				enemy.act = false;
+				halt();
+				ctx.globalAlpha = 1.0;
+				ctx.drawImage(go_img,C_WIDTH/2-go_img.width/2,C_HEIGT/2-go_img.height/2);
+			}
+	
+			function halt(){
+				ctx.globalAlpha = 0.5;
+				window.clearInterval(timer1);
+				window.clearInterval(timer2);
+				window.clearInterval(timer3);
+				window.clearInterval(timer4);
+				run = false;
+			}
+	
+			function reset(){
+				ctx.clearRect(0, 0, C_WIDTH, C_HEIGT);
+				ctx.beginPath();
+				bulletArr.splice(0,bulletArr.length);
+				eRespawn();
+				enemy.setPos(C_WIDTH/2,E_SIZE);
+				enemy.img.src = E_SPRITE_1;
+				enemy.act = true;
+				player.setPos(C_WIDTH/2,C_HEIGT-E_SIZE);
+				player.img.src = P_SPRITE;
+				player.act = true;
+				run = true;
+				score = 0;
+			}
+		</script>
+	</body>
+</html>
