@@ -210,9 +210,12 @@
 
 			function handleOrientation(event){
 				var xval = event.gamma;
+				var yval = event.beta;
 				//document.getElementById("list_c").textContent = x;
 				keyL = xval <-10;
 				keyR = xval >10;
+				keyU = xval <-10;
+				keyD = xval >10;
 			}
 
 			function refreshBoard(){
