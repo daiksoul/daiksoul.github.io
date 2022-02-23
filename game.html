@@ -108,7 +108,7 @@
 		<div id="scoreblock" class="container">
 			score: <span id = "list_c">0</span>
 		</div>
-		<canvas id = "gameCanvas" width="400" height="600" class="container" onmousedown="if(run)keyS=true" onmouseup="if(run)keyS=false">
+		<canvas id = "gameCanvas" width="400" height="600" class="container">
 			you've just activated my trap card
 		</canvas>
 		<p class="container">
@@ -151,6 +151,15 @@
 				if(mobileCheck()){
 					window.addEventListener("deviceorientation", handleOrientation);
 					window.ondeviceorientation(handleOrientation);
+					window.addEventListener("touchstart",function(event){
+						if(run)
+							keyS = true;
+					},false);
+					window.addEventListener("touchend",function(event){
+						if(run)
+							keyS = false;
+					},false);
+
 				}else{
 					document.addEventListener('keydown',function(event){
 						if(event.keyCode==37){
