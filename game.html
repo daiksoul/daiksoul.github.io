@@ -145,10 +145,12 @@
 			<div class="key" id="sp"><br/>space</div>
 		</div>
 		<script>
+			var mobile = false;
 			window.onload = function(){
 				refreshBoard();
 
 				if(mobileCheck()){
+					mobile = true;
 					window.addEventListener("deviceorientation", handleOrientation);
 					window.ondeviceorientation(handleOrientation);
 					window.addEventListener("touchstart",function(event){
@@ -459,7 +461,7 @@
 			}
 	
 			function pShoot(){
-				if(player.bullets>0&& player.act){
+				if((mobile||player.bullets>0)&& player.act){
 					var b = new Bullet(player.x_pos,player.y_pos-E_SIZE/2,true);
 					bulletArr.push(b);
 					player.bullets--;
@@ -484,7 +486,7 @@
 			}
 	
 			function shoot(){
-				if(keyS)
+				if(keyS||mobile)
 					pShoot();
 			}
 	
